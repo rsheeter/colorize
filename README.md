@@ -1,7 +1,10 @@
 # colorize
 Random acts of hacking on color fonts
 
-## Ewart ttf
+## Google Fonts
 
-Assumed created similar to `pyftsubset ../fonts/ofl/ewert/Ewert-Regular.ttf --text="ABDQ" --output-file=./Ewert-ABDQ.ttf`
-where ``../fonts` is a clone of google/fonts.
+It is assumed `../fonts` is a clone of https://github.com/google/fonts.
+
+## ewart.py
+
+Requires a copy of picosvg with https://github.com/googlefonts/picosvg/pull/286.
