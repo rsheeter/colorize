@@ -184,4 +184,4 @@ for cp, glyph_name in font["cmap"].getBestCmap().items():
 
 font["COLR"] = builder.buildCOLR(colrv1)
 
-font.save("Ewert-Spice.ttf")
+font.save("fonts/ewert/Ewert-Spice.ttf")
