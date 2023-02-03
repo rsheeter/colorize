@@ -64,21 +64,30 @@ class SubpathPen(BasePen):
         BasePen.__init__(self, glyphset)
         self.glyphset = glyphset
         self.recordings = []
+        self.active_recording = False
+
+    def _recording(self) -> DecomposingRecordingPen:
+        if not self.active_recording:
+            self.recordings.append(DecomposingRecordingPen(self.glyphset))
+            self.active_recording = True
+        return self.recordings[-1]
 
     def moveTo(self, p0):
-        self.recordings.append(DecomposingRecordingPen(self.glyphset))
-        self.recordings[-1].moveTo(p0)
-
+        self._recording().moveTo(p0)
     def lineTo(self, p1):
-        self.recordings[-1].lineTo(p1)
+        self._recording().lineTo(p1)
     def qCurveTo(self, *points):
-        self.recordings[-1].qCurveTo(*points)
+        self._recording().qCurveTo(*points)
     def curveTo(self, *points):
-        self.recordings[-1].curveTo(*points)
+        self._recording().curveTo(*points)
     def closePath(self):
-        self.recordings[-1].closePath()
+        self._recording().closePath()
+        self.active_recording = False
     def endPath(self):
-        self.recordings[-1].endPath()
+        self._recording().endPath()
+        self.active_recording = False
     def addComponent(self, glyphName, transformation):
         self.recordings.append(DecomposingRecordingPen(self.glyphset))
-        self.recordings[-1].addComponent(glyphName, transformation)
+        self.active_recording = True
+        self._recording().addComponent(glyphName, transformation)
+        self.active_recording = False

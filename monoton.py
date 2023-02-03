@@ -12,18 +12,9 @@ from picosvg.geometric_types import Rect
 from helpers import *
 
 
-_RETAIN_WIDEST = {
-    "D": 2,
-    "N": 3,
-    "O": 2,
-    "Q": 2,
-    "0": 2,
-}
 
 
-
-
-font = TTFont("../fonts/ofl/akronim/Akronim-Regular.ttf")
+font = TTFont("../fonts/ofl/monoton/Monoton-Regular.ttf")
 #font = TTFont("./Akronim-ABY.ttf")
 
 glyphs = font.getGlyphSet()
@@ -32,9 +23,8 @@ glyf = font["glyf"]
 cpal = font["CPAL"] = newTable("CPAL")
 cpal.version = 1
 cpal.palettes = [
+    [color('#d91111FF'), color('#d9d511FF'), color('#11d9d5FF'), color('#1b11d9FF'), color('#d911cbFF')],
     [color('#040db8FF'), color('#484db0FF'), color('#236db8FF'), color('#2395b8FF'), color('#23b8aeFF')],
-    [color('#C90900FF'), color('#f58d05FF'), color('#f5ed05FF'), color('#992811FF'), color('#b86404FF')],
-    [color('#c90057FF'), color('#b200c9FF'), color('#e01fc3FF'), color('#8b14baFF'), color('#bf2a75FF')],
 ]
 # Why would you make me set this?!
 cpal.numPaletteEntries = len(cpal.palettes[0])
@@ -46,8 +36,13 @@ foreground = {
 }
 
 colrv1 = {}
-
+areas = {"": 0}
+visited = set()
 for cp, glyph_name in font["cmap"].getBestCmap().items():
+    if glyph_name in visited:
+        print("skip", chr(cp))
+        continue
+    visited.add(glyph_name)
     print(chr(cp))
     whole_glyph_svg_pen = SVGPathPen(glyphs)
     glyphs[glyph_name].draw(whole_glyph_svg_pen)
@@ -55,7 +50,6 @@ for cp, glyph_name in font["cmap"].getBestCmap().items():
     pen = SubpathPen(glyphs)
     glyphs[glyph_name].draw(pen)
 
-    areas = {"": 0}
     paths = []
     negatives = []
     for i, recording in enumerate(pen.recordings):
@@ -67,7 +61,11 @@ for cp, glyph_name in font["cmap"].getBestCmap().items():
         recording.replay(mpen)
 
         areas[svg_path.d] = mpen.area
-        paths.append(svg_path)
+        # this is weird, I thought it was supposed to be < 0
+        if mpen.area > 0:
+            negatives.append(svg_path)
+        else:
+            paths.append(svg_path)
 
     paths.sort(key=lambda p: -abs(areas[p.d]))
     for path, color in zip(paths, cpal.palettes[0]):
@@ -77,6 +75,16 @@ for cp, glyph_name in font["cmap"].getBestCmap().items():
 
     # Color the parts we find
     for i, path in enumerate(paths):
+        # glue on the largest negative we can find that is contained by path
+        biggest_negative = SVGPath()
+        for negative in negatives:
+            if bbox(path.d).intersection(bbox(negative.d)) != bbox(negative.d):
+                continue
+            if areas[biggest_negative.d] < areas[negative.d]:
+                biggest_negative = negative
+
+        path.d += biggest_negative.d
+
         new_glyph_name = make_glyph_name(glyph_name, i)
         make_glyph(font, glyph_name, new_glyph_name, path)
 
@@ -108,4 +116,4 @@ for cp, glyph_name in font["cmap"].getBestCmap().items():
 
 font["COLR"] = builder.buildCOLR(colrv1)
 
-font.save("Akronim-Spice.ttf")
+font.save("Monoton-Spice.ttf")
