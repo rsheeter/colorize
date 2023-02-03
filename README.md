@@ -1,5 +1,5 @@
 # colorize
-Random acts of hacking on color fonts
+Random acts of hacking on color fonts. Demo @ https://rsheeter.github.io/colorize/.
 
 ## Google Fonts
 
