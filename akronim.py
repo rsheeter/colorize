@@ -108,4 +108,4 @@ for cp, glyph_name in font["cmap"].getBestCmap().items():
 
 font["COLR"] = builder.buildCOLR(colrv1)
 
-font.save("Akronim-Spice.ttf")
+font.save("fonts/akronim/Akronim-Spice.ttf")

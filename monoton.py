@@ -116,4 +116,4 @@ for cp, glyph_name in font["cmap"].getBestCmap().items():
 
 font["COLR"] = builder.buildCOLR(colrv1)
 
-font.save("Monoton-Spice.ttf")
+font.save("fonts/monoton/Monoton-Spice.ttf")
